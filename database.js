@@ -13,7 +13,7 @@ pool.query("SELECT * FROM users", (error, results, fields) => {
     console.error("Error fetching data: ", error);
     return;
   }
-  console.log("Results: ", results);
+  console.log("Database is connected");
 });
 
 module.exports = pool;
