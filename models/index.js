@@ -21,36 +21,35 @@ sequelize
     console.log("connected...");
   })
   .catch((err) => {
-    console.log("Error " + err);
+    // console.log("Error " + err);
   });
 
 const db = {};
+// db.User;
+// db.GroceryItems;
+// db.OrderItems;
+// db.Orders;
 
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-db.USER;
-db.GroceryItems;
-db.OrderItems;
-db.Orders;
-
-const User = require("./users.js")(sequelize, DataTypes);
-const GroceryItems = require("./groceryItem.js")(sequelize, DataTypes);
-const Orders = require("./order.js")(sequelize, DataTypes);
-const OrderItems = require("./orderItem.js")(sequelize, DataTypes);
-
-// Define associations
-User.hasMany(Orders, { foreignKey: "user_id" });
-Orders.belongsTo(User, { foreignKey: "user_id" });
-
-Orders.hasMany(OrderItems, { foreignKey: "order_id" });
-OrderItems.belongsTo(Orders, { foreignKey: "order_id" });
-
-GroceryItems.hasMany(OrderItems, { foreignKey: "item_id" });
-OrderItems.belongsTo(GroceryItems, { foreignKey: "item_id" });
+db.User = require("./users.js")(sequelize, DataTypes);
+db.GroceryItems = require("./groceryItem.js")(sequelize, DataTypes);
+db.Orders = require("./order.js")(sequelize, DataTypes);
+db.OrderItems = require("./orderItem.js")(sequelize, DataTypes);
 
 db.sequelize.sync({ force: false }).then(() => {
   console.log("yes re-sync done!");
 });
+
+// Define associations
+db.User.hasMany(db.Orders, { foreignKey: "user_id" });
+db.Orders.belongsTo(db.User, { foreignKey: "user_id" });
+
+db.Orders.hasMany(db.OrderItems, { foreignKey: "order_id" });
+db.OrderItems.belongsTo(db.Orders, { foreignKey: "order_id" });
+
+db.GroceryItems.hasMany(db.OrderItems, { foreignKey: "item_id" });
+db.OrderItems.belongsTo(db.GroceryItems, { foreignKey: "item_id" });
 
 module.exports = db;

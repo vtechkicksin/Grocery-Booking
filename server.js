@@ -5,24 +5,21 @@ require("dotenv").config();
 const app = express();
 const bodyParser = require("body-parser");
 
-
 app.use(cors());
 // app.use(bodyParser.urlencoded({ extended: false }));
 // app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-
 app.get("/", (req, res) => {
   console.log("hellow ji");
   res.send("welcome my friends");
 });
 
-const controller = require("./controller/index.js");
 const router = require("./router/index");
+const db = require("./models/index.js");
 
-console.log("hi");
-// app.use(controller);
+// app.use(db);
 app.use(router);
 
 const port = process.env.PORT || 3000;

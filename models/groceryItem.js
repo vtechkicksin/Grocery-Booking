@@ -3,16 +3,16 @@
 module.exports = (sequelize, DataTypes) => {
   const GroceryItems = sequelize.define("groceryItems", {
     item_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       primaryKey: true,
-      autoIncrement: true,
+      allowNull: false,
     },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
     price: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     quantity_left: {

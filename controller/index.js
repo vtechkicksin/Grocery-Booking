@@ -1,150 +1,142 @@
-const db = require("../database");
+const db = require("../models");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
+const { sign } = require("jsonwebtoken");
 
 class Grocery {
-  // static async register(req, res) {
-  //   try {
-  //     console.log("hi");
-  //     const { name, email, password, passwordConfirm } = req.body;
-  //     console.log("request body is =", req.body);
-  //     console.log("confirm", passwordConfirm);
-
-  //     db.query(`SELECT * From users WHERE email='${email}'`, (error, data) => {
-  //       if (error) {
-  //         console.log("error in making database call", error);
-  //       }
-  //       if (data.length > 0) {
-  //         console.log("this is if");
-  //         return res.send({
-  //           message: "Already existing email",
-  //         });
-  //       } else if (password != passwordConfirm) {
-  //         console.log("HERE naaaaaaaa");
-  //         return res.send("register", {
-  //           message: "Password do not matched",
-  //         });
-  //       }
-  //       console.log("callback data", data);
-  //     });
-
-  //     let pass = password.toString();
-  //     let hashPassword = await bcrypt.hash(pass, 8);
-
-  //     let uuid = crypto.randomUUID();
-  //     db.query(
-  //       "INSERT INTO users SET ?",
-  //       {
-  //         userid: uuid,
-  //         username: name,
-  //         email: email,
-  //         password: hashPassword,
-  //         role: "user",
-  //       },
-  //       (error, data) => {
-  //         if (error) {
-  //           console.error(error);
-  //         }
-
-  //         console.log("insert wali query", data);
-  //       }
-  //     );
-  //     // console.log("putting", puting);
-  //     return res.json({ ok: true });
-  //   } catch (error) {
-  //     console.log("Getting error>>>>>>>");
-  //     console.log(error);
-  //   }
-  // }
-  static async register(req, res) {
+  static async registerApi(req, res) {
     try {
       const { name, email, password, passwordConfirm } = req.body;
 
-      db.query(
-        `SELECT * FROM users WHERE email='${email}'`,
-        async (error, data) => {
-          if (error) {
-            console.log("Error in making database call", error);
-            return res.status(500).json({ error: "Internal server error" });
-          }
+      if (password != passwordConfirm) {
+        return res.json({
+          message: "Password do not matched",
+        });
+      }
+      let userId = crypto.randomUUID();
+      const data = await db.User.findOne({
+        where: {
+          email: email,
+        },
+        attributes: ["email"],
+      });
 
-          if (data.length > 0) {
-            return res.send({ message: "Already existing email" });
-          }
-
-          if (password !== passwordConfirm) {
-            return res.send({ message: "Passwords do not match" });
-          }
-
-          try {
-            const hashPassword = await bcrypt.hash(password, 8);
-            const uuid = crypto.randomUUID();
-            console.log("here trying to execute insert query");
-            db.query(
-              "INSERT INTO users SET ?",
-              {
-                userid: uuid,
-                username: name,
-                email: email,
-                password: hashPassword,
-                role: "user",
-              },
-              (error, data) => {
-                if (error) {
-                  console.error("Error in insert query:", error);
-                  return res
-                    .status(500)
-                    .json({ error: "Internal server error" });
-                }
-                console.log("Inserted data:", data);
-                return res.json({ message: "Data has been inerted" });
-              }
-            );
-          } catch (hashError) {
-            console.error("Error hashing password:", hashError);
-            return res.status(500).json({ error: "Internal server error" });
-          }
-        }
-      );
+      if (data != null) {
+        return res.json({
+          message: "Already existing email",
+        });
+      }
+      let hashPassword = await bcrypt.hash(password, 8);
+      await db.User.create({
+        user_id: userId,
+        username: name,
+        email: email,
+        password: hashPassword,
+        roles: "user",
+      });
+      return res.send({
+        message: "User Register",
+      });
     } catch (error) {
-      console.error("Getting error:", error);
-      return res.status(500).json({ error: "Internal server error" });
+      console.log(error);
+      console.error(error);
     }
   }
 
   static async login(req, res) {
     try {
-      console.log("hi");
-      const { name, email, password, passwordConfirm } = req.body;
-      console.log("request body is =", req.body);
-      console.log("confirm", passwordConfirm);
+      const { email, password } = req.body;
+      console.log("req.body", req.body);
 
-      //   const data = await db.query(
-      //     `SELECT email From users WHERE email='${email}'`
-      //   );
-      //   if (data.length > 0) {
-      //     return res.render("resgister", {
-      //       message: "Already existing email",
-      //     });
-      //   } else if (password != passwordConfirm) {
-      //     console.log("HERE naaaaaaaa");
-      //     return res.render("register", {
-      //       message: "Password do not matched",
-      //     });
-      //   }
-      //   let hashPassword = await bcrypt.hash(password, 8);
-      //   console.log(hashPassword);
-      //   const puting = db.query("INSERT INTO users SET ?", {
-      //     name: name,
-      //     email: email,
-      //     password: hashPassword,
-      //   });
-
-      //   console.log("putting", puting);
-      return res.json({ ok: true });
+      const data = await db.User.findOne({
+        where: {
+          email: email,
+        },
+        // attributes: ["password"],
+      });
+      console.log("data>>>>", data.dataValues);
+      if (data != null) {
+        const result = bcrypt.compareSync(password, data.dataValues.password);
+        if (result) {
+          const jsontoken = sign(
+            {
+              userId: data.dataValues.user_id,
+              email: email,
+              roles: data.dataValues.roles,
+            },
+            process.env.SECRET_KEY,
+            {
+              expiresIn: "1day",
+            }
+          );
+          return res.json({
+            success: 1,
+            message: "login Successfully",
+            token: jsontoken,
+          });
+        }
+      }
+      return res.send({
+        message: "User Not Found you need to register before login",
+      });
     } catch (error) {
+      console.log(error);
+      console.error(error);
+    }
+  }
+  static async addNewGrocery(req, res) {
+    try {
+      const arr = req.body;
+      const jsonString = JSON.stringify(arr);
+      const parsedArray = JSON.parse(jsonString);
+      console.log("array from request", arr);
+      for (let i = 0; i < parsedArray.length; i++) {
+        let userId = crypto.randomUUID();
+        parsedArray[i].item_id = userId;
+      }
+      console.log("parsedArray>>>>>>>", parsedArray);
+      await db.GroceryItems.bulkCreate(parsedArray);
+      return res.send({
+        message: "Grocery is updated",
+      });
+    } catch (error) {
+      console.log(error);
+      console.error(error);
+    }
+  }
+  static async veiwGrocery(req, res) {
+    try {
+      const data = await db.GroceryItems.findAll({});
+      res.send({
+        data,
+      });
+    } catch (error) {
+      console.error(error);
+      console.log(error);
+    }
+  }
+  static async updateGrocery(req, res) {
+    try {
+      const arr = req.body;
+      const jsonString = JSON.stringify(arr);
+      const parsedArray = JSON.parse(jsonString);
+      const namesToFind = parsedArray.map((item) => item.name);
+      const data = await db.GroceryItems.findAll({
+        where: {
+          name: {
+            [Op.in]: namesToFind,
+          },
+        },
+      });
+      console.log("data>>>>>>>", data);
+      res.send({
+        data,
+      });
+    } catch (error) {
+      console.error(error);
       console.log(error);
     }
   }
 }
+
 module.exports = Grocery;
