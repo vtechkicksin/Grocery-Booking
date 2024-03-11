@@ -3,7 +3,7 @@ const { use } = require("../router");
 const dotenv = require("dotenv").config();
 
 class middleware {
-  static async checkToken(req, res, next) {
+  static async userAuth(req, res, next) {
     let token = req.get("authorization");
     console.log("Token:", token);
     if (token) {
@@ -14,9 +14,6 @@ class middleware {
         // Extract user information from the decoded token
         const { userId, email, roles } = decoded;
 
-        console.log("user>>>>>", userId);
-        console.log("email>>>>>", email);
-        console.log("roles>>>>>", roles);
         req.userId = userId;
         req.email = email;
         req.roles = roles;

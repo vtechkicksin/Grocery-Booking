@@ -18,28 +18,28 @@ router.post("/login", grocery.login);
 // }
 
 router.post("/addNewGrocery", middleware.adminAuth, grocery.addNewGrocery);
-// const arr = [
-//     {
-//       name: "maggie",
-//       price: 15,
-//       quantity_left: 10,
-//     },
-//     {
-//       name: "appyfiz",
-//       price: 20,
-//       quantity_left: 10,
-//     },
-//     {
-//       name: "kurkure",
-//       price: 20,
-//       quantity_left: 20,
-//     },
-//     {
-//       name: "chips",
-//       price: 20,
-//       quantity_left: 30,
-//     },
-//   ];
+    // const arr = [
+    //     {
+    //       name: "maggie",
+    //       price: 15,
+    //       quantity_left: 10,
+    //     },
+    //     {
+    //       name: "appyfiz",
+    //       price: 20,
+    //       quantity_left: 10,
+    //     },
+    //     {
+    //       name: "kurkure",
+    //       price: 20,
+    //       quantity_left: 20,
+    //     },
+    //     {
+    //       name: "chips",
+    //       price: 20,
+    //       quantity_left: 30,
+    //     },
+    //   ];
 router.post("/removeGrocery", middleware.adminAuth, grocery.removeGroceryItem);
 
 router.get("/veiwGrocery", grocery.veiwGrocery);
@@ -48,7 +48,7 @@ router.post("/updateGrocery", middleware.adminAuth, grocery.updateGrocery);
 
 router.post("/updateRole", grocery.changeRoles);
 
-router.post("/order", middleware.checkToken, grocery.order);
+router.post("/order", middleware.userAuth, grocery.order);
 // [
 //     {
 //       "name": "kurkure",
