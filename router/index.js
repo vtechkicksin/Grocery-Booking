@@ -17,7 +17,7 @@ router.post("/login", grocery.login);
 //     "password":"1234",
 // }
 
-router.post("/addNewGrocery", grocery.addNewGrocery);
+router.post("/addNewGrocery", middleware.adminAuth, grocery.addNewGrocery);
 // const arr = [
 //     {
 //       name: "maggie",
@@ -40,11 +40,11 @@ router.post("/addNewGrocery", grocery.addNewGrocery);
 //       quantity_left: 30,
 //     },
 //   ];
-router.post("/removeGrocery", grocery.removeGroceryItem);
+router.post("/removeGrocery", middleware.adminAuth, grocery.removeGroceryItem);
 
 router.get("/veiwGrocery", grocery.veiwGrocery);
 
-router.post("/updateGrocery", grocery.updateGrocery);
+router.post("/updateGrocery", middleware.adminAuth, grocery.updateGrocery);
 
 router.post("/updateRole", grocery.changeRoles);
 

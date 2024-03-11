@@ -46,7 +46,7 @@ class middleware {
         console.log("Decoded token:", decoded);
         // Extract user information from the decoded token
         const { userId, email, roles } = decoded;
-        if (roles !== "ADMIN") {
+        if (roles.toUpperCase() !== "ADMIN") {
           res.status(403).json({
             success: 0,
             message: "You need to be Admin in order to access this API",
