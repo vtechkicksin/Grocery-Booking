@@ -3,7 +3,7 @@
 module.exports = (sequelize, DataTypes) => {
   const OrderItems = sequelize.define("OrderItems", {
     order_item_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       primaryKey: true,
       allowNull: false,
     },

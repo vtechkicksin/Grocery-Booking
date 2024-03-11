@@ -1,7 +1,7 @@
 const express = require("express");
 const grocery = require("../controller/index.js");
 const router = express.Router();
-// const groceryInstance = new Grocery();
+const middleware = require("../middleware/index.js");
 
 router.post("/register", grocery.registerApi);
 // {
@@ -40,8 +40,27 @@ router.post("/addNewGrocery", grocery.addNewGrocery);
 //       quantity_left: 30,
 //     },
 //   ];
+router.post("/removeGrocery", grocery.removeGroceryItem);
 
 router.get("/veiwGrocery", grocery.veiwGrocery);
 
 router.post("/updateGrocery", grocery.updateGrocery);
+
+router.post("/updateRole", grocery.changeRoles);
+
+router.post("/order", middleware.checkToken, grocery.order);
+// [
+//     {
+//       "name": "kurkure",
+//       "quantity": 20
+//     },
+//     {
+//       "name": "chips",
+//       "quantity": 30
+//     },
+//     {
+//       "name": "mouse",
+//       "quantity": 30
+//     }
+//   ]
 module.exports = router;
